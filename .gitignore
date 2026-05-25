@@ -1,0 +1,7 @@
+config/local.php
+*.log
+php-server.out.log
+php-server.err.log
+.env
+.DS_Store
+Thumbs.db
