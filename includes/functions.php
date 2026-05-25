@@ -644,7 +644,20 @@ function sendWhatsAppMessage($to, $text, $url = null, $token = null, $session = 
     $token = $token ?: $config['token'];
     $session = $session ?: $config['session'];
 
-    if (!$token || !$session || !$to || !$text) return false;
+    $missingConfig = [];
+    if (!$token) $missingConfig[] = 'WA gateway token kosong';
+    if (!$session) $missingConfig[] = 'WA gateway session kosong';
+    if (!$to) $missingConfig[] = 'Group ID tujuan kosong';
+    if (!$text) $missingConfig[] = 'Isi pesan kosong';
+
+    if ($missingConfig) {
+        return [
+            'ok' => false,
+            'status' => 0,
+            'response' => null,
+            'error' => implode(', ', $missingConfig)
+        ];
+    }
 
     $payload = [
         'session' => $session,
