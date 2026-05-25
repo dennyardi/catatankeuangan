@@ -489,7 +489,7 @@ function calculatePeriodRange($cutoffDay, $timestamp = null) {
     return [$start, $end, date('d M', strtotime($start)) . ' - ' . date('d M', strtotime($end))];
 }
 
-function getSummaryRange($period, $timestamp = null) {
+function getSummaryRange($period, $timestamp = null, $cutoffDay = 1) {
     $timestamp = $timestamp ?: time();
     if ($period === 'weekly') {
         $start = date('Y-m-d', strtotime('monday this week', $timestamp));
@@ -497,15 +497,23 @@ function getSummaryRange($period, $timestamp = null) {
         return [$start, $end, 'Mingguan ' . date('d M', strtotime($start)) . ' - ' . date('d M Y', strtotime($end))];
     }
 
-    $start = date('Y-m-01', $timestamp);
-    $end = date('Y-m-t', $timestamp);
-    return [$start, $end, 'Bulanan ' . date('F Y', $timestamp)];
+    [$start, $end, $displayPeriod] = calculatePeriodRange($cutoffDay, $timestamp);
+    $label = ((int)$cutoffDay === 1)
+        ? 'Bulanan ' . date('F Y', $timestamp)
+        : 'Bulanan ' . $displayPeriod;
+
+    return [$start, $end, $label];
 }
 
 function buildFinancialSummaryMessage(PDO $pdo, array $setting, $period) {
     $userId = (int)$setting['user_id'];
     $pocketId = !empty($setting['pocket_id']) ? (int)$setting['pocket_id'] : null;
-    [$startDate, $endDate, $periodLabel] = getSummaryRange($period);
+
+    $stmtUser = $pdo->prepare("SELECT start_date_calculation FROM users WHERE id = ? LIMIT 1");
+    $stmtUser->execute([$userId]);
+    $cutoffDay = (int)($stmtUser->fetchColumn() ?: 1);
+
+    [$startDate, $endDate, $periodLabel] = getSummaryRange($period, null, $cutoffDay);
 
     $scopeSql = $pocketId ? " AND e.pocket_id = ? " : "";
     $scopeParams = $pocketId ? [$pocketId] : [];
