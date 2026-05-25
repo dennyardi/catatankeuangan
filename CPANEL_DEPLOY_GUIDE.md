@@ -75,6 +75,35 @@ Hasil yang diharapkan:
 Uang Belanja Ibu | 76
 ```
 
+## 3b. Jalankan Seed Kategori dan Rule
+
+Setelah migrasi multi-pocket berhasil, jalankan file:
+
+```text
+database_seed_categories_rules_hosting.sql
+```
+
+Caranya sama:
+
+1. Buka tab `SQL` di phpMyAdmin.
+2. Copy seluruh isi `database_seed_categories_rules_hosting.sql`.
+3. Paste ke SQL editor.
+4. Klik `Go`.
+
+File ini akan menambahkan kategori versi terbaru:
+
+```text
+Belanja
+Makanan
+Transportasi
+Utilitas
+Kesehatan
+Lainnya
+Pemasukan
+```
+
+dan mengisi keyword/rule default untuk masing-masing kategori. File ini aman dijalankan lebih dari sekali karena memakai pengecekan data yang sudah ada.
+
 ## 4. Upload File Aplikasi
 
 1. Buka `File Manager` di cPanel.
@@ -168,7 +197,7 @@ WEBHOOK_DEBUG=0
 3. Tambahkan pocket baru bila diperlukan, misalnya `Pengeluaran Ayan`.
 4. Isi Group ID masing-masing pocket.
 5. Buka `Rule Kategori`.
-6. Klik `Isi Rule Awal` jika rule belum ada.
+6. Pastikan kategori dan keyword sudah tampil.
 
 Webhook WhatsApp diarahkan ke:
 
