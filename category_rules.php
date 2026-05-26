@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pockets = getUserPockets($pdo, $user_id, true);
+$pockets = getUserPockets($pdo, $user_id, false);
 $stmtCategories = $pdo->prepare("
     SELECT c.*, p.name AS pocket_name
     FROM categories c
@@ -148,6 +148,12 @@ $stmtCategories = $pdo->prepare("
 ");
 $stmtCategories->execute([$user_id]);
 $categories = $stmtCategories->fetchAll();
+foreach ($categories as &$category) {
+    if (!empty($category['pocket_id']) && empty($category['pocket_name'])) {
+        $category['pocket_name'] = 'Pocket ID ' . (int)$category['pocket_id'];
+    }
+}
+unset($category);
 
 $stmtRules = $pdo->prepare("
     SELECT r.*, c.name AS category_name, p.name AS pocket_name
@@ -249,7 +255,7 @@ function queryUrl($overrides) {
                 <select name="category_pocket_id" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition bg-white">
                     <option value="">Semua Pocket</option>
                     <?php foreach ($pockets as $pocket): ?>
-                        <option value="<?= (int)$pocket['id'] ?>"><?= e($pocket['name']) ?></option>
+                        <option value="<?= (int)$pocket['id'] ?>"><?= e($pocket['name']) ?><?= empty($pocket['is_active']) ? ' (Nonaktif)' : '' ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -330,7 +336,7 @@ function queryUrl($overrides) {
                                 class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition bg-white">
                                 <option value="">Semua Pocket</option>
                                 <?php foreach ($pockets as $pocket): ?>
-                                    <option value="<?= (int)$pocket['id'] ?>" <?= (int)$pocket['id'] === (int)$category['pocket_id'] ? 'selected' : '' ?>><?= e($pocket['name']) ?></option>
+                                    <option value="<?= (int)$pocket['id'] ?>" <?= (int)$pocket['id'] === (int)$category['pocket_id'] ? 'selected' : '' ?>><?= e($pocket['name']) ?><?= empty($pocket['is_active']) ? ' (Nonaktif)' : '' ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -409,7 +415,7 @@ function queryUrl($overrides) {
                 <select name="pocket_id" class="rule-pocket-select w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition bg-white">
                     <option value="">Semua Pocket</option>
                     <?php foreach ($pockets as $pocket): ?>
-                        <option value="<?= (int)$pocket['id'] ?>"><?= e($pocket['name']) ?></option>
+                        <option value="<?= (int)$pocket['id'] ?>"><?= e($pocket['name']) ?><?= empty($pocket['is_active']) ? ' (Nonaktif)' : '' ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -486,7 +492,7 @@ function queryUrl($overrides) {
                             <select name="pocket_id" class="rule-pocket-select w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition bg-white">
                                 <option value="">Semua Pocket</option>
                                 <?php foreach ($pockets as $pocket): ?>
-                                    <option value="<?= (int)$pocket['id'] ?>" <?= (int)$pocket['id'] === (int)$rule['pocket_id'] ? 'selected' : '' ?>><?= e($pocket['name']) ?></option>
+                                    <option value="<?= (int)$pocket['id'] ?>" <?= (int)$pocket['id'] === (int)$rule['pocket_id'] ? 'selected' : '' ?>><?= e($pocket['name']) ?><?= empty($pocket['is_active']) ? ' (Nonaktif)' : '' ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
