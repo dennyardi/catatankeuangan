@@ -421,7 +421,7 @@ function queryUrl($overrides) {
                         <option value="<?= (int)$category['id'] ?>" data-pocket-id="<?= e($category['pocket_id'] ?? '') ?>"><?= e($category['name']) ?> - <?= $category['pocket_id'] ? e($category['pocket_name']) : 'Semua Pocket' ?></option>
                     <?php endforeach; ?>
                 </select>
-                <p class="text-xs text-slate-400 mt-2">Kategori khusus pocket akan muncul setelah pocket-nya dipilih.</p>
+                <p class="text-xs text-slate-400 mt-2">Jika kategori khusus pocket dipilih, pocket akan otomatis disesuaikan.</p>
             </div>
             <div>
                 <label class="block text-xs font-semibold uppercase text-slate-500 mb-1.5 tracking-wide">Prioritas</label>
@@ -558,21 +558,18 @@ document.addEventListener('DOMContentLoaded', function () {
         const categorySelect = form.querySelector('.category-select');
         if (!pocketSelect || !categorySelect) return;
 
-        function filterCategories() {
-            const selectedPocket = pocketSelect.value;
-            Array.from(categorySelect.options).forEach(function (option) {
-                const scope = option.getAttribute('data-pocket-id');
-                const unavailable = scope && scope !== selectedPocket;
-                option.hidden = unavailable;
-                option.disabled = unavailable;
-            });
-            if (categorySelect.selectedOptions.length && categorySelect.selectedOptions[0].hidden) {
-                categorySelect.value = '';
+        function syncPocketFromCategory() {
+            const selected = categorySelect.selectedOptions[0];
+            if (!selected) return;
+
+            const categoryPocket = selected.getAttribute('data-pocket-id');
+            if (categoryPocket) {
+                pocketSelect.value = categoryPocket;
             }
         }
 
-        pocketSelect.addEventListener('change', filterCategories);
-        filterCategories();
+        categorySelect.addEventListener('change', syncPocketFromCategory);
+        syncPocketFromCategory();
     });
 });
 </script>
