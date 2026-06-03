@@ -14,8 +14,11 @@ $now = date('Y-m-d H:i:s');
 $localConfigPath = __DIR__ . '/../config/local.php';
 $localConfig = is_file($localConfigPath) ? require $localConfigPath : [];
 if (!is_array($localConfig)) $localConfig = [];
-$cronToken = getenv('SUMMARY_CRON_TOKEN') ?: ($localConfig['summary_cron_token'] ?? '');
-$providedToken = $_GET['key'] ?? '';
+$cronToken = trim((string)($localConfig['summary_cron_token'] ?? ''));
+if ($cronToken === '') {
+    $cronToken = trim((string)(getenv('SUMMARY_CRON_TOKEN') ?: ''));
+}
+$providedToken = trim((string)($_GET['key'] ?? ''));
 $isCli = PHP_SAPI === 'cli';
 
 if (!$isCli && ($cronToken === '' || !hash_equals($cronToken, $providedToken))) {
