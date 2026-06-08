@@ -492,15 +492,26 @@ function calculatePeriodRange($cutoffDay, $timestamp = null) {
 function getSummaryRange($period, $timestamp = null, $cutoffDay = 1) {
     $timestamp = $timestamp ?: time();
     if ($period === 'weekly') {
-        $start = date('Y-m-d', strtotime('monday this week', $timestamp));
-        $end = date('Y-m-d', strtotime('sunday this week', $timestamp));
+        $end = date('Y-m-d', strtotime('yesterday', $timestamp));
+        $start = date('Y-m-d', strtotime($end . ' -6 days'));
         return [$start, $end, 'Mingguan ' . date('d M', strtotime($start)) . ' - ' . date('d M Y', strtotime($end))];
     }
 
-    [$start, $end, $displayPeriod] = calculatePeriodRange($cutoffDay, $timestamp);
+    $cutoffDay = (int)$cutoffDay;
+    if ($cutoffDay < 1 || $cutoffDay > 28) $cutoffDay = 1;
+
+    [$currentStart] = calculatePeriodRange($cutoffDay, $timestamp);
+    $end = date('Y-m-d', strtotime($currentStart . ' -1 day'));
+
+    if ($cutoffDay === 1) {
+        $start = date('Y-m-01', strtotime($end));
+    } else {
+        $start = date('Y-m-', strtotime($currentStart . ' -1 month')) . sprintf('%02d', $cutoffDay);
+    }
+
     $label = ((int)$cutoffDay === 1)
-        ? 'Bulanan ' . date('F Y', $timestamp)
-        : 'Bulanan ' . $displayPeriod;
+        ? 'Bulanan ' . date('F Y', strtotime($start))
+        : 'Bulanan ' . date('d M', strtotime($start)) . ' - ' . date('d M Y', strtotime($end));
 
     return [$start, $end, $label];
 }
